@@ -7,7 +7,7 @@
 	Variables:
 		Source: factor; 145 levels, mostly "YOUTH", "POVERTY", "LOCAL", "AGING"
 		Council.Member: factor; requires some cleanup from spaces, etc
-		Legal.Name.of.Organization: some cleanup, but because not repeated, mostly okay
+		Legal.Name.of.Organization: some cleanup in whitespace and inconsistent punctuation
 
 
 2014
