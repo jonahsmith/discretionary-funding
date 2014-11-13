@@ -1,0 +1,16 @@
+2015
+---
+11/13
+	Directly downloaded
+	Convert to CSV using Excel
+	Import into R (use fileEncoding="latin1")
+	Variables:
+		Source: factor; 145 levels, mostly "YOUTH", "POVERTY", "LOCAL", "AGING"
+		Council.Member: factor; requires some cleanup from spaces, etc
+		Legal.Name.of.Organization: some cleanup, but because not repeated, mostly okay
+
+
+2014
+---
+Directly downloaded
+Convert to CSV using Excel
