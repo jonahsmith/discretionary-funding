@@ -17,10 +17,15 @@
 			remove "inc, \\s+corp, and corporation"
 			and <- &
 
+11/17
+	used IMPORTHTML() in Google Docs to scrape current councilmembers
+	same for historic councilmembers, but using July 26, 2013 entry in Wayback Machine (https://web.archive.org/web/20130726124226/http://council.nyc.gov/html/members/members.shtml)
+	Combined the datasets and extracted last name for each person.
+		manually fixed Van Bramer
+	Merge the member information with funding information (by year + councilmember)
+	
+
 ==================
 TO DO
-[ ] Match councilmembers to boroughs/zip codes
 [ ] Match zip codes to boroughs
 [ ] Is it reasonable to remove " of _____ ____"? Probably, but need to make sure it's not in the middle of sentence?
-
-It might be a better strategy to match by address...
