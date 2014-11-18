@@ -23,6 +23,11 @@ cm15$Year <- 2015
 
 members <- rbind(cm14,cm15)
 
+# Import zip code buroughs
+zips <- read.csv("zip-codes.csv")
+zipa <- read.csv("zip-codes-alt.csv", header=FALSE, col.names = c("Spending_zip", "Spending_borough_alt")) #alternative, less reputable but more complete
+zipa$Spending_zip <- as.factor(zipa$Spending_zip)
+
 # Housekeeping
 rm(y14,y15, cm14, cm15)
 
@@ -39,8 +44,10 @@ funding$Council.Member <- gsub("TREYGERÊ", "TREYGER", funding$Council.Member)
 funding$Council.Member <- gsub("\u0087", "A", funding$Council.Member)
 funding$Council.Member <- gsub("^VIVERITO", "MARK-VIVERITO", funding$Council.Member)
 
-## cleanup
+## housekeeping
+funding$Council.Member[funding$Council.Member == ""] <- NA
 funding$Council.Member <- as.factor(funding$Council.Member)
+
 
 # Smash district info + funding
 ## first, parse names to get last names
@@ -57,11 +64,71 @@ funding <- merge(funding, members, all.x = TRUE, by=c("Year", "Council.Member"))
 ## housekeeping
 rm(names, members)
 
+# Clean up zipcodes
+
+## make an actual list of zip-codes from raw data (reputable)
+zips$ZIP.Codes <- as.character(zips$ZIP.Codes)
+zip <- strsplit(zips$ZIP.Codes, ",")
+
+zipc = data.frame()	#this is about as inefficiently as I could possibly have done this...
+for (i in 1:length(zip)){
+	for (j in 1:length(zip[[i]])){
+		zipc <- rbind(zipc, data.frame(Spending_borough_rep = zips$Borough[i], Spending_zip = zip[[i]][j]))
+	}
+}
+zipc$Spending_zip <- gsub(" ", "", zipc$Spending_zip)
+rm(zip, i, j)
+
+## regularize the 'funding' column by reducing to 5 digit zip
+funding$Spending_zip <- funding$Zip.Code
+funding$Spending_zip <- as.character(funding$Spending_zip)
+funding$Spending_zip <- sapply(funding$Spending_zip, function(x) strsplit(x, "-")[[1]][1])
+funding$Spending_zip <- gsub("\n","", funding$Spending_zip)
+funding$Spending_zip <- gsub("ZipCode2: [0-9]*","", funding$Spending_zip)
+funding$Spending_zip <- gsub("[#]?N/A","", funding$Spending_zip)
+funding$Spending_zip <- gsub(" ","", funding$Spending_zip)
+funding$Spending_zip[funding$Spending_zip == ""] <- NA
+funding$Spending_zip <- as.factor(funding$Spending_zip)
+
+## smash
+funding <- merge(funding, zipc, all.x = TRUE, by="Spending_zip")
+funding <- merge(funding, zipa, all.x = TRUE, by="Spending_zip")
+
 # Cleanup "Amount..."
 funding$Amount... <- gsub("[$|,]", "", funding$Amount...)
 funding$Amount... <- as.numeric(funding$Amount...)
 
+#############################################################
+# Question: Where is the money spent?
 
+sum(subset(funding, Year == 2014 & Spending_borough_alt == "Manhattan", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2014, select=Amount...)) #<- 45% of funding in 2014
+
+sum(subset(funding, Year == 2015 & Spending_borough_alt == "Manhattan", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2015, select=Amount...)) #<- 43.2% of funding in 2015
+
+##
+sum(subset(funding, Year == 2014 & Spending_borough_alt == "Brooklyn", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2014, select=Amount...)) #<- 23.8% of funding in 2014
+
+sum(subset(funding, Year == 2015 & Spending_borough_alt == "Brooklyn", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2015, select=Amount...)) #<- 27.3% of funding in 2015
+
+##
+sum(subset(funding, Year == 2014 & Spending_borough_alt == "Queens", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2014, select=Amount...)) #<- 12.7% of funding in 2014
+
+sum(subset(funding, Year == 2015 & Spending_borough_alt == "Queens", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2015, select=Amount...)) #<- 15.5% of funding in 2015
+##
+sum(subset(funding, Year == 2014 & Spending_borough_alt == "Bronx", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2014, select=Amount...)) #<- 13.4% of funding in 2014
+
+sum(subset(funding, Year == 2015 & Spending_borough_alt == "Bronx", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2015, select=Amount...)) #<- 9.6% of funding in 2015
+##
+sum(subset(funding, Year == 2014 & Spending_borough_alt == "Staten", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2014, select=Amount...)) #<- 4.6% of funding in 2014
+
+sum(subset(funding, Year == 2015 & Spending_borough_alt == "Staten", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2015, select=Amount...)) #<- 4.3% of funding in 2015
+
+## Takeaway: it rose in Brooklyn and Queens, stayed the same in Staten Island, but fell in the Bronx
+
+## What if we consider only the 
+
+
+#############################################################
 # Cleanup Legal.Name.of.Organization
 length(levels(as.factor(funding$Legal.Name.of.Organization))) #3854
 

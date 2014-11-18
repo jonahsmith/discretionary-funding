@@ -23,9 +23,22 @@
 	Combined the datasets and extracted last name for each person.
 		manually fixed Van Bramer
 	Merge the member information with funding information (by year + councilmember)
-	
+	Variables
+		Council.Member
+			changed the "Viverito" entries to "Mark-Viverito"
+			change all the "" to NA
+		Amount...
+			remove "$" and ","
+			convert to numeric
+			odd: why is there a negative value? (call to ask)
+		Zip.Code (moved to "Spending_Zip")
+			leave only five-digit zip code
+			remove second zip code, if given
+	Downloaded zip code data from http://www.health.ny.gov/statistics/cancer/registry/appendix/neighborhoods.htm, pulled out each zip code/borough match, then smashed
+	That zip code data isn't great, so I'll also try http://www.nycbynatives.com/nyc_info/new_york_city_zip_codes.php, which is less reputable but more up-to-date
+	The alternative dataset reduces the number of NAs by about 250, equally dispersed through the distribution. That seems reasonable.
+			
 
 ==================
 TO DO
-[ ] Match zip codes to boroughs
 [ ] Is it reasonable to remove " of _____ ____"? Probably, but need to make sure it's not in the middle of sentence?
