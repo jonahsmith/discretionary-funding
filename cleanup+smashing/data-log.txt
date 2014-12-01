@@ -37,6 +37,18 @@
 	Downloaded zip code data from http://www.health.ny.gov/statistics/cancer/registry/appendix/neighborhoods.htm, pulled out each zip code/borough match, then smashed
 	That zip code data isn't great, so I'll also try http://www.nycbynatives.com/nyc_info/new_york_city_zip_codes.php, which is less reputable but more up-to-date
 	The alternative dataset reduces the number of NAs by about 250, equally dispersed through the distribution. That seems reasonable.
+
+12/1
+	Council.Member
+		Remove "Delegation" and replace with nothing (match borough-wide spending between years)
+		Replace "SI" with "Staten Island"
+		Replace "CD 28" with "CD28"
+		
+
+	Notes: 
+		CD28 is Council District 28. It is represented by Ruben Wills, who isn't allowed to spend his funding because he was arrested earlier this year for embezzling.
+		CD19 was vacant before Vallone
+		Need to figure out what CC is and whether it is the same as CITYWIDE
 			
 
 ==================

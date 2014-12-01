@@ -1,7 +1,6 @@
 # My machine settings
-setwd("~/Dropbox/school/politics/story/data/")
+setwd("~/Dropbox/school/politics/story/data/cleanup+smashing/")
 
-############################## IMPORT ################################
 # Import budget data
 y14 <- read.csv("funded_disclosure_FY2014.csv", fileEncoding= "latin1")
 y15 <- read.csv("funded_disclosure_FY2015.csv", fileEncoding= "latin1")
@@ -31,10 +30,14 @@ zipa$Spending_zip <- as.factor(zipa$Spending_zip)
 # Housekeeping
 rm(y14,y15, cm14, cm15)
 
-############################## CLEANING + SMASHING ################################
 # Clean up Councilmember names
 ## trailing whitespace
 funding$Council.Member <- gsub("^\\s+|\\s+$", "", funding$Council.Member)
+
+## remove 'Delegation' <- same between 2014 and 2015
+funding$Council.Member <- gsub(" Delegation", "", funding$Council.Member)
+funding$Council.Member <- gsub("CD 28", "CD28", funding$Council.Member)
+funding$Council.Member <- gsub("^SI$", "STATEN ISLAND", funding$Council.Member)
 
 ## uppercase
 funding$Council.Member <- toupper(funding$Council.Member)
@@ -48,7 +51,6 @@ funding$Council.Member <- gsub("^VIVERITO", "MARK-VIVERITO", funding$Council.Mem
 funding$Council.Member[funding$Council.Member == ""] <- NA
 funding$Council.Member <- as.factor(funding$Council.Member)
 
-
 # Smash district info + funding
 ## first, parse names to get last names
 names <- toupper(members$NAME)
@@ -60,6 +62,10 @@ members$Council.Member[members$Council.Member == "BRAMER"] <- "VAN BRAMER" #one 
 
 ## smash
 funding <- merge(funding, members, all.x = TRUE, by=c("Year", "Council.Member"))
+
+## artificially add some district info
+funding$BOROUGH[funding$Council.Member == "CD28"] <- "QUEENS"
+funding$BOROUGH[funding$Council.Member == "CD19"] <- "QUEENS"
 
 ## housekeeping
 rm(names, members)
@@ -98,98 +104,11 @@ funding <- merge(funding, zipa, all.x = TRUE, by="Spending_zip")
 funding$Amount... <- gsub("[$|,]", "", funding$Amount...)
 funding$Amount... <- as.numeric(funding$Amount...)
 
-#############################################################
-# Question: Where is the money going?
-
-sum(subset(funding, Year == 2014 & BOROUGH == "Manhattan", select=Amount...))
-sum(subset(funding, Year == 2015 & BOROUGH == "Manhattan", select=Amount...))
-
-sum(subset(funding, Year == 2014 & BOROUGH == "Brooklyn", select=Amount...))
-sum(subset(funding, Year == 2015 & BOROUGH == "Brooklyn", select=Amount...))
-
-sum(subset(funding, Year == 2014 & BOROUGH == "Queens", select=Amount...))
-sum(subset(funding, Year == 2015 & BOROUGH == "Queens", select=Amount...))
-
-sum(subset(funding, Year == 2014 & BOROUGH == "Bronx", select=Amount...))
-sum(subset(funding, Year == 2015 & BOROUGH == "Bronx", select=Amount...))
-
-sum(subset(funding, Year == 2014 & BOROUGH == "Staten Island", select=Amount...))
-sum(subset(funding, Year == 2015 & BOROUGH == "Staten Island", select=Amount...))
-
-sum(subset(funding, Year == 2015 & BOROUGH == "Manhattan and Bronx", select=Amount...)) #what should we do about this?
-
-#############################################################
-# Question: Where is the money spent?
-
-## Manhattan
-sum(subset(funding, Year == 2014 & Spending_borough_alt == "Manhattan", select=Amount...))
-sum(subset(funding, Year == 2014 & Spending_borough_alt == "Manhattan", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2014, select=Amount...)) #<- 45% of funding in 2014
-
-sum(subset(funding, Year == 2015 & Spending_borough_alt == "Manhattan", select=Amount...))
-sum(subset(funding, Year == 2015 & Spending_borough_alt == "Manhattan", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2015, select=Amount...)) #<- 43.2% of funding in 2015
-
-## Brooklyn
-sum(subset(funding, Year == 2014 & Spending_borough_alt == "Brooklyn", select=Amount...))
-sum(subset(funding, Year == 2014 & Spending_borough_alt == "Brooklyn", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2014, select=Amount...)) #<- 23.8% of funding in 2014
-
-sum(subset(funding, Year == 2015 & Spending_borough_alt == "Brooklyn", select=Amount...))
-sum(subset(funding, Year == 2015 & Spending_borough_alt == "Brooklyn", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2015, select=Amount...)) #<- 27.3% of funding in 2015
-
-## Queens
-sum(subset(funding, Year == 2014 & Spending_borough_alt == "Queens", select=Amount...))
-sum(subset(funding, Year == 2014 & Spending_borough_alt == "Queens", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2014, select=Amount...)) #<- 12.7% of funding in 2014
-
-sum(subset(funding, Year == 2015 & Spending_borough_alt == "Queens", select=Amount...))
-sum(subset(funding, Year == 2015 & Spending_borough_alt == "Queens", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2015, select=Amount...)) #<- 15.5% of funding in 2015
-
-## Bronx
-sum(subset(funding, Year == 2014 & Spending_borough_alt == "Bronx", select=Amount...))
-sum(subset(funding, Year == 2014 & Spending_borough_alt == "Bronx", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2014, select=Amount...)) #<- 13.4% of funding in 2014
-
-sum(subset(funding, Year == 2015 & Spending_borough_alt == "Bronx", select=Amount...))
-sum(subset(funding, Year == 2015 & Spending_borough_alt == "Bronx", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2015, select=Amount...)) #<- 9.6% of funding in 2015
-
-## Staten Island
-sum(subset(funding, Year == 2014 & Spending_borough_alt == "Staten", select=Amount...))
-sum(subset(funding, Year == 2014 & Spending_borough_alt == "Staten", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2014, select=Amount...)) #<- 4.6% of funding in 2014
-
-sum(subset(funding, Year == 2015 & Spending_borough_alt == "Staten", select=Amount...))
-sum(subset(funding, Year == 2015 & Spending_borough_alt == "Staten", select=Amount...))/sum(subset(funding, !is.na(Spending_borough_alt) & Year == 2015, select=Amount...)) #<- 4.3% of funding in 2015
-
-## Takeaway: it rose in Brooklyn and Queens, stayed the same in Staten Island, but fell in the Bronx
-
-#############################################################
-# How has the amount of unaffiliated money changed?
-
-sum(subset(funding, Year == 2014 & is.na(NAME), select=Amount...))/sum(subset(funding, Year == 2014, select=Amount...)) #0.781993
-
-sum(subset(funding, Year == 2015 & is.na(NAME), select=Amount...))/sum(subset(funding, Year == 2015, select=Amount...)) #0.8197954
-
-## break it down by borough (by spending, I guess)
-sum(subset(funding, Year == 2014 & is.na(NAME) & Spending_borough_alt == "Manhattan", select=Amount...))/sum(subset(funding, Year == 2014 & Spending_borough_alt == "Manhattan", select=Amount...)) #0.8336326
-
-sum(subset(funding, Year == 2015 & is.na(NAME) & Spending_borough_alt == "Manhattan", select=Amount...))/sum(subset(funding, Year == 2015 & Spending_borough_alt == "Manhattan", select=Amount...)) #0.4096371
-
-sum(subset(funding, Year == 2014 & is.na(NAME) & Spending_borough_alt == "Brooklyn", select=Amount...))/sum(subset(funding, Year == 2014 & Spending_borough_alt == "Brooklyn", select=Amount...)) #0.7216939
-
-sum(subset(funding, Year == 2015 & is.na(NAME) & Spending_borough_alt == "Brooklyn", select=Amount...))/sum(subset(funding, Year == 2015 & Spending_borough_alt == "Brooklyn", select=Amount...)) #0.7216939
-
-sum(subset(funding, Year == 2014 & is.na(NAME) & Spending_borough_alt == "Queens", select=Amount...))/sum(subset(funding, Year == 2014 & Spending_borough_alt == "Queens", select=Amount...)) #0.6662386
-
-sum(subset(funding, Year == 2015 & is.na(NAME) & Spending_borough_alt == "Queens", select=Amount...))/sum(subset(funding, Year == 2015 & Spending_borough_alt == "Queens", select=Amount...)) #0.6662386
-
-sum(subset(funding, Year == 2014 & is.na(NAME) & Spending_borough_alt == "Bronx", select=Amount...))/sum(subset(funding, Year == 2014 & Spending_borough_alt == "Bronx", select=Amount...)) #0.8134873
-
-sum(subset(funding, Year == 2015 & is.na(NAME) & Spending_borough_alt == "Bronx", select=Amount...))/sum(subset(funding, Year == 2015 & Spending_borough_alt == "Bronx", select=Amount...)) #0.8134873
-
-sum(subset(funding, Year == 2014 & is.na(NAME) & Spending_borough_alt == "Staten", select=Amount...))/sum(subset(funding, Year == 2014 & Spending_borough_alt == "Staten", select=Amount...)) #0.6674196
-
-sum(subset(funding, Year == 2015 & is.na(NAME) & Spending_borough_alt == "Staten", select=Amount...))/sum(subset(funding, Year == 2015 & Spending_borough_alt == "Staten", select=Amount...)) #0.1676165
-
-
-
-#############################################################
-
+# Cleanup "Source"
+funding$Source <- as.character(funding$Source)
+funding$Source <- gsub("^\\s+|\\s+$", "", funding$Source)
+funding$Source <- toupper(funding$Source)
+funding$Source <- as.factor(funding$Source)
 
 # Cleanup Legal.Name.of.Organization
 length(levels(as.factor(funding$Legal.Name.of.Organization))) #3854
@@ -247,3 +166,6 @@ funding$Address <- gsub("P[.|\\s+]O.?", "PO", funding$Address)
 funding$Address <- gsub("POBOX", "PO BOX", funding$Address)
 
 length(levels(as.factor(funding$Address)))	#3554
+
+# Save the file
+save(funding, file = "../funding.Rdata")
