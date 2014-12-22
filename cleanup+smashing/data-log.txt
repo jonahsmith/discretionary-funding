@@ -49,8 +49,3 @@
 		CD28 is Council District 28. It is represented by Ruben Wills, who isn't allowed to spend his funding because he was arrested earlier this year for embezzling.
 		CD19 was vacant before Vallone
 		Need to figure out what CC is and whether it is the same as CITYWIDE
-			
-
-==================
-TO DO
-[ ] Is it reasonable to remove " of _____ ____"? Probably, but need to make sure it's not in the middle of sentence?

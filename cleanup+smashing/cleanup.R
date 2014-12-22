@@ -1,6 +1,3 @@
-# My machine settings
-setwd("~/Dropbox/school/politics/story/data/cleanup+smashing/")
-
 # Import budget data
 y14 <- read.csv("funded_disclosure_FY2014.csv", fileEncoding= "latin1")
 y15 <- read.csv("funded_disclosure_FY2015.csv", fileEncoding= "latin1")
@@ -24,8 +21,8 @@ members <- rbind(cm14,cm15)
 
 # Import zip code buroughs
 zips <- read.csv("zip-codes.csv")
-zipa <- read.csv("zip-codes-alt.csv", header=FALSE, col.names = c("Spending_zip", "Spending_borough_alt")) #alternative, less reputable but more complete
-zipa$Spending_zip <- as.factor(zipa$Spending_zip)
+zipa <- read.csv("zip-codes-alt.csv", header=FALSE, col.names = c("Spending.zip", "Spending.borough.alt")) #alternative, less reputable but more complete
+zipa$Spending.zip <- as.factor(zipa$Spending.zip)
 
 # Housekeeping
 rm(y14,y15, cm14, cm15)
@@ -63,7 +60,7 @@ members$Council.Member[members$Council.Member == "BRAMER"] <- "VAN BRAMER" #one 
 ## smash
 funding <- merge(funding, members, all.x = TRUE, by=c("Year", "Council.Member"))
 
-## artificially add some district info
+## artificially add some district info -- this is slightly broken, need 
 funding$BOROUGH[funding$Council.Member == "CD28"] <- "QUEENS"
 funding$BOROUGH[funding$Council.Member == "CD19"] <- "QUEENS"
 
@@ -79,26 +76,26 @@ zip <- strsplit(zips$ZIP.Codes, ",")
 zipc = data.frame()	#this is about as inefficiently as I could possibly have done this...
 for (i in 1:length(zip)){
 	for (j in 1:length(zip[[i]])){
-		zipc <- rbind(zipc, data.frame(Spending_borough_rep = zips$Borough[i], Spending_zip = zip[[i]][j]))
+		zipc <- rbind(zipc, data.frame(Spending.borough.rep = zips$Borough[i], Spending.zip = zip[[i]][j]))
 	}
 }
-zipc$Spending_zip <- gsub(" ", "", zipc$Spending_zip)
+zipc$Spending.zip <- gsub(" ", "", zipc$Spending.zip)
 rm(zip, i, j)
 
 ## regularize the 'funding' column by reducing to 5 digit zip
-funding$Spending_zip <- funding$Zip.Code
-funding$Spending_zip <- as.character(funding$Spending_zip)
-funding$Spending_zip <- sapply(funding$Spending_zip, function(x) strsplit(x, "-")[[1]][1])
-funding$Spending_zip <- gsub("\n","", funding$Spending_zip)
-funding$Spending_zip <- gsub("ZipCode2: [0-9]*","", funding$Spending_zip)
-funding$Spending_zip <- gsub("[#]?N/A","", funding$Spending_zip)
-funding$Spending_zip <- gsub(" ","", funding$Spending_zip)
-funding$Spending_zip[funding$Spending_zip == ""] <- NA
-funding$Spending_zip <- as.factor(funding$Spending_zip)
+funding$Spending.zip <- funding$Zip.Code
+funding$Spending.zip <- as.character(funding$Spending.zip)
+funding$Spending.zip <- sapply(funding$Spending.zip, function(x) strsplit(x, "-")[[1]][1])
+funding$Spending.zip <- gsub("\n","", funding$Spending.zip)
+funding$Spending.zip <- gsub("ZipCode2: [0-9]*","", funding$Spending.zip)
+funding$Spending.zip <- gsub("[#]?N/A","", funding$Spending.zip)
+funding$Spending.zip <- gsub(" ","", funding$Spending.zip)
+funding$Spending.zip[funding$Spending.zip == ""] <- NA
+funding$Spending.zip <- as.factor(funding$Spending.zip)
 
 ## smash
-funding <- merge(funding, zipc, all.x = TRUE, by="Spending_zip")
-funding <- merge(funding, zipa, all.x = TRUE, by="Spending_zip")
+funding <- merge(funding, zipc, all.x = TRUE, by="Spending.zip")
+funding <- merge(funding, zipa, all.x = TRUE, by="Spending.zip")
 
 # Cleanup "Amount..."
 funding$Amount... <- gsub("[$|,]", "", funding$Amount...)
@@ -114,58 +111,47 @@ funding$Source <- as.factor(funding$Source)
 length(levels(as.factor(funding$Legal.Name.of.Organization))) #3854
 
 ## leading and trailing spaces
-funding$Legal.Name.of.Organization <- gsub("^\\s+|\\s+$", "", funding$Legal.Name.of.Organization)
-length(levels(as.factor(funding$Legal.Name.of.Organization))) #3730
+funding$Cleaned.Organization <- gsub("^\\s+|\\s+$", "", funding$Legal.Name.of.Organization)
+length(levels(as.factor(funding$Cleaned.Organization))) #3730
 
 ## upper case
-funding$Legal.Name.of.Organization <- toupper(funding$Legal.Name.of.Organization)
-length(levels(as.factor(funding$Legal.Name.of.Organization))) #3702
+funding$Cleaned.Organization <- toupper(funding$Cleaned.Organization)
+length(levels(as.factor(funding$Cleaned.Organization))) #3702
 
 ## remove commas, periods, and apostrophes
-funding$Legal.Name.of.Organization <- gsub("[.,']", "", funding$Legal.Name.of.Organization)
-length(levels(as.factor(funding$Legal.Name.of.Organization))) #3604
+funding$Cleaned.Organization <- gsub("[.,']", "", funding$Cleaned.Organization)
+length(levels(as.factor(funding$Cleaned.Organization))) #3604
 
 ## remove inc, corp (as its own word to avoid corps), and corporation
-funding$Legal.Name.of.Organization <- gsub("\\s+INC|\\s+CORP|\\s+CORPORATION", "", funding$Legal.Name.of.Organization)
-length(levels(as.factor(funding$Legal.Name.of.Organization))) #3465
+funding$Cleaned.Organization <- gsub("\\s+INC|\\s+CORP|\\s+CORPORATION", "", funding$Cleaned.Organization)
+length(levels(as.factor(funding$Cleaned.Organization))) #3465
 
 ## change "and"
-funding$Legal.Name.of.Organization <- gsub("&", "AND", funding$Legal.Name.of.Organization)
-length(levels(as.factor(funding$Legal.Name.of.Organization))) #3460
+funding$Cleaned.Organization <- gsub("&", "AND", funding$Cleaned.Organization)
+length(levels(as.factor(funding$Cleaned.Organization))) #3460
 
 ## cleanup
-funding$Legal.Name.of.Organization <- as.factor(funding$Legal.Name.of.Organization)
+funding$Cleaned.Organization <- as.factor(funding$Cleaned.Organization)
 
-# Cleanup addresses
-length(levels(as.factor(funding$Address)))	#3820
+# A bit of renaming
+funding$Amount <- funding$Amount...
+funding$Amount... <- NULL
 
-## leading and trailing spaces
-funding$Address <- gsub("^\\s+|\\s+$", "", funding$Address)
-length(levels(as.factor(funding$Address)))	#3798
+funding$Address2 <- funding$Address.2..optional
+funding$Address.2..optional <- NULL
 
-## all caps
-funding$Address <- toupper(funding$Address)
-length(levels(as.factor(funding$Address)))	#3690
+funding$CM.District <- funding$DISTRICT
+funding$DISTRICT <- NULL
 
-## avenue, street, etc
-funding$Address <- gsub("\\s+AVE.?\\s+", " AVENUE ", funding$Address)
-funding$Address <- gsub("\\s+AVE.?$", " AVENUE", funding$Address)
-length(levels(as.factor(funding$Address)))	#3608
+funding$CM.Borough <- funding$BOROUGH 
+funding$BOROUGH <- NULL
 
-funding$Address <- gsub("\\s+ST.?\\s+", " STREET ", funding$Address)
-funding$Address <- gsub("\\s+ST.?$", " STREET", funding$Address)
-length(levels(as.factor(funding$Address)))	#3555
+funding$CM.Party <- funding$POLITICAL.PARTY
+funding$POLITICAL.PARTY <- NULL
 
-funding$Address <- gsub("\\s+RD.?\\s+", " ROAD ", funding$Address)
-funding$Address <- gsub("\\s+RD.?$", " ROAD", funding$Address)
-length(levels(as.factor(funding$Address)))	#3552
-
-## Deal with post office boxes
-funding$Address <- gsub("POST OFFICE BOX", "PO BOX", funding$Address)
-funding$Address <- gsub("P[.|\\s+]O.?", "PO", funding$Address)
-funding$Address <- gsub("POBOX", "PO BOX", funding$Address)
-
-length(levels(as.factor(funding$Address)))	#3554
+funding$CM.fullname <- funding$NAME
+funding$NAME <- NULL
 
 # Save the file
+write.csv(funding, file="../funding.csv")
 save(funding, file = "../funding.Rdata")
