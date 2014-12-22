@@ -2,12 +2,6 @@ This is an analysis of the FY2015 NYC Council discretionary funding expenditures
 
 # Directories and Files
 
-```funding-codebook.md``` - Reference for the dataset below.
-
-```funding.csv``` - The cleaned and expanded dataset. It includes discretionary funding information for FY2014 and FY2015, along with information on the councilmembers and the borough of the organization where the funding was spent. For a more complete breakdown of the variables, see ```funding-codebook.md```.
-
-```funding.Rdata``` - An Rdata file containing the dataset above.
-
 ## analysis
 ```analysis.R``` - My analyses of the discretionary funding data. I've included code for some exploratory analyses and the figures used in my story.
 
@@ -26,6 +20,14 @@ This is an analysis of the FY2015 NYC Council discretionary funding expenditures
 ```zip-codes-alt.csv``` - NYC zip codes and their corresponding boroughs. Scraped from [a source](http://www.nycbynatives.com/nyc_info/new_york_city_zip_codes.php) with questionable validity, but appears to be accurate and more complete that ```zip-codes.csv```.
 
 ```zip-codes.csv``` - An apparently [reputable source](http://www.health.ny.gov/statistics/cancer/registry/appendix/neighborhoods.htm) of NYC zip codes and boroughs, but less complete than ```zip-codes-alt.csv```.
+
+## data
+
+```funding-codebook.md``` - Reference for the dataset below.
+
+```funding.csv``` - The cleaned and expanded dataset. It includes discretionary funding information for FY2014 and FY2015, along with information on the councilmembers and the borough of the organization where the funding was spent. For a more complete breakdown of the variables, see ```funding-codebook.md```.
+
+```funding.Rdata``` - An Rdata file containing the dataset above.
 
 ## documents
 ```budgettranscript.xml``` - A transcript of the [YouTube video](https://www.youtube.com/watch?v=fqHbiRyUn5I) of the press conference when the final budget was unveiled.
